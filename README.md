@@ -1,0 +1,1 @@
+# launchquickly.scot
