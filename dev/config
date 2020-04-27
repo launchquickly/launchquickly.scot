@@ -1,0 +1,10 @@
+Host launchquickly.scot.local
+  HostName 10.205.0.20
+  User vagrant
+  Port 22
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile /home/vagrant/.ssh/id_rsa_lqscot
+  IdentitiesOnly yes
+  LogLevel FATAL

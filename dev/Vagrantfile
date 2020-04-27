@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.ssh.insert_key = false
+
+  config.vm.define "lqscot-code" do |code|
+   code.vm.box = "launchquickly/focal-desktop64"
+   code.vm.box_version = "0.0.4"
+
+   code.vm.hostname = "lqscot-code"
+
+   code.vm.network :private_network, ip: "10.205.0.10"
+
+   code.vm.provider "virtualbox" do |vb|
+      vb.gui = true
+      vb.customize ["modifyvm", :id, "--vram", "128"]
+   end
+
+   code.vm.provision "shell", inline: <<-SHELL
+      snap install code --classic
+   SHELL
+
+   # Run as unpriviliged user to configure for 'vagrant' user
+   code.vm.provision "shell", privileged: false, inline: <<-SHELL
+      code --install-extension ms-vscode-remote.remote-ssh
+   SHELL
+
+   # Make private keys of instances that vscode will connect to available
+   code.vm.provision "file", source: "./keys/id_rsa_lqscot", destination: "~/.ssh/id_rsa_lqscot"
+
+   code.vm.provision "file", source: "./config", destination: "~/.ssh/config"
+
+   code.vm.provision "shell", privileged: false, inline: <<-SHELL
+      chmod 400 ~/.ssh/id_rsa_lqscot
+      
+      chmod 400 ~/.ssh/config
+   SHELL
+  end
+
+  config.vm.define "lqscot-web" do |web|
+   web.vm.box = "launchquickly/focal64"
+   web.vm.box_version = "0.0.3"
+
+   web.vm.hostname = "lqscot-web"
+
+   web.vm.network :private_network, ip: "10.205.0.20"
+
+    web.ssh.private_key_path = ['~/.vagrant.d/insecure_private_key', './keys/id_rsa_lqscot']
+
+   web.vm.provision "file", source: "./keys/id_rsa_lqscot.pub", destination: "~/.ssh/authorized_keys"
+
+   web.vm.provision "shell", privileged: false, inline: <<-SHELL
+      mkdir -p /home/vagrant/www/html
+   SHELL
+
+   web.vm.provision "shell", inline: <<-SHELL
+      apt-get install -y apache2
+
+      rm -rf /var/www
+      ln -fs /home/vagrant/www /var/www
+   SHELL
+
+   web.vm.provision "file", source: "./index.html", destination: "/home/vagrant/www/html/index.html"
+  end
+
+end
