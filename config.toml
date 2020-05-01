@@ -1,0 +1,4 @@
+baseURL = "http://launchquickly.scot/"
+languageCode = "en-gb"
+title = "launchquickly"
+theme = "ananke"
