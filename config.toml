@@ -1,0 +1,4 @@
+baseURL = "https://launchquickly.github.io/"
+languageCode = "en-gb"
+title = "launchquickly"
+theme = "ananke"
